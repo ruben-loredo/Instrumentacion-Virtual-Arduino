@@ -1,5 +1,8 @@
 /* Control de "Nivel de agua en un tanque"
-
+    Profesor: Rubén Loredo Amaro 
+    Materia: Fundamentos de Instrumentación Virtual
+    Agosto del 2021 V1
+    https://github.com/ruben-loredo/Instrumentacion-Virtual-Arduino
 */
 #include <OneWire.h>
 #include <DallasTemperature.h>
@@ -81,7 +84,7 @@ void WaterFlowSensorYF_S201() {
     // Pulse frequency (Hz) = 7.5Q, Q is flow rate in L/min.
     l_hour = (flow_frequency * 60 / 7.5); // (Pulse frequency x 60 min) / 7.5Q = flowrate in L/hour
     flow_frequency = 0; // Reset Counter
-    Serial.print("Flujo = ");
+    Serial.print("F=");
     Serial.println(l_hour, DEC); // Print litres/hour
   }
 }
@@ -102,15 +105,16 @@ void SensorUltrasonico()
 
   unsigned long tiempo = pulseIn(PinEcho, HIGH);  // La función pulseIn obtiene el tiempo entre estados, en este caso a HIGH
   distancia = tiempo * 0.000001 * VelSon / 2.0;   // Obtenemos la distancia en cm
-  Serial.print("d = ");
+  Serial.print("D=");
   Serial.println(distancia);
+
 }
 
 void SensorTempDS1820() {
   sensors.requestTemperatures();   //Se envía el comando para leer la temperatura
   float temp = sensors.getTempCByIndex(0); //Se obtiene la temperatura en ºC
 
-  Serial.print("Temp = ");
+  Serial.print("T=");
   Serial.println(temp);
 }
 
@@ -129,7 +133,7 @@ void setup() {
   //--------- CONFIGURA ELECTROVALVULA----------
   pinMode(valvula, OUTPUT);
   digitalWrite(valvula, LOW);   //inicializa en estado bajo
-  StatusValvula = "OFF";
+  StatusValvula = "0";
   //-------inicializa Sensor Temperatura----------------
   sensors.begin();
   //---------------------------------------------------
@@ -148,20 +152,20 @@ void setup() {
 }
 
 void loop() {
-  Serial.println("-----------------------------------");
+  
   if (Serial.available() > 0)
   {
     datoSerie = Serial.read();
     switch (datoSerie) {
       case 'A':
         digitalWrite(valvula, HIGH);
-        StatusValvula = "ON";
+        StatusValvula = "1";
         break;
       case 'a':
         digitalWrite(valvula, LOW);
-        StatusValvula = "OFF";
+        StatusValvula = "0";
         break;
-      case 'b':
+      case 'b' :
         duty = readNum();
         bomba(duty);
         Serial.print("b");
@@ -170,12 +174,16 @@ void loop() {
 
     }
   }
-  Serial.print("Bomba = ");
+  Serial.print("B=");
   Serial.println(duty);
-  Serial.print("Valvula = ");
+
+  Serial.print("V=");
   Serial.println(StatusValvula);
+
   WaterFlowSensorYF_S201();   //funcion que envia datos del sensor de flujo
+
   SensorUltrasonico();        //funcion que envia datos del sensor ultrasonico
+
   SensorTempDS1820();         //funcion que envia datos del sensor de temperatura
 
 
